@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সুরক্ষিত ব্যাংক - লোকাল স্টোরেজ সহ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a2a6c;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .auth-section, .dashboard {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        h2 {
+            color: #1a2a6c;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a2a6c;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+        
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #1a2a6c;
+            outline: none;
+        }
+        
+        button {
+            background-color: #1a2a6c;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2a3a8c;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .balance-display {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(to right, #1a2a6c, #2a3a8c);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .balance-amount {
+            font-size: 42px;
+            color: white;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .deposit-section {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #1a2a6c;
+        }
+        
+        .transaction-history {
+            margin-top: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #1a2a6c;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .admin-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #1a2a6c;
+        }
+        
+        .notification {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .approve-btn {
+            background-color: #28a745;
+            flex: 1;
+        }
+        
+        .reject-btn {
+            background-color: #dc3545;
+            flex: 1;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .secondary-btn {
+            background-color: #6c757d;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .demo-notes {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .demo-notes h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .demo-notes h4 i {
+            margin-right: 10px;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-landmark"></i> সুরক্ষিত ব্যাংক
+            </div>
+            <div id="user-info" style="display: none;">
+                স্বাগতম, <span id="username-display"></span> | 
+                <a href="#" id="logout-btn" style="color: #1a2a6c; text-decoration: none; font-weight: 600;">
+                    <i class="fas fa-sign-out-alt"></i> লগআউট
+                </a>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <section class="auth-section" id="auth-section">
+                <h2><i class="fas fa-sign-in-alt"></i> লগইন করুন</h2>
+                <div class="form-group">
+                    <label for="user-id"><i class="fas fa-user"></i> ব্যবহারকারী আইডি</label>
+                    <input type="text" id="user-id" placeholder="আপনার আইডি লিখুন">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> পাসওয়ার্ড</label>
+                    <input type="password" id="password" placeholder="আপনার পাসওয়ার্ড লিখুন">
+                </div>
+                <button id="login-btn"><i class="fas fa-sign-in-alt"></i> লগইন</button>
+                
+                <div id="login-notification" class="notification"></div>
+                
+                <div class="demo-notes">
+                    <h4><i class="fas fa-info-circle"></i> ডেমো অ্যাকাউন্ট</h4>
+                    <p>ব্যবহারকারী: user123, পাসওয়ার্ড: pass123</p>
+                    <p>ব্যবহারকারী: user456, পাসওয়ার্ড: pass456</p>
+                    <p>এডমিন: admin, পাসওয়ার্ড: adminpass</p>
+                    <p class="info-text">সব ডেটা আপনার ব্রাউজারের লোকাল স্টোরেজে সংরক্ষণ হবে</p>
+                </div>
+            </section>
+            
+            <section class="dashboard" id="dashboard">
+                <h2><i class="fas fa-tachometer-alt"></i> আপনার অ্যাকাউন্ট ড্যাশবোর্ড</h2>
+                
+                <div class="balance-display">
+                    <p>বর্তমান ব্যালেন্স</p>
+                    <div class="balance-amount" id="balance-amount">৳ ০.০০</div>
+                </div>
+                
+                <div class="user-actions">
+                    <button id="refresh-btn" class="secondary-btn"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+                    <button id="clear-data-btn" class="secondary-btn"><i class="fas fa-trash"></i> সব ডেটা রিসেট</button>
+                </div>
+                
+                <div class="deposit-section">
+                    <h3><i class="fas fa-money-bill-wave"></i> নতুন ডিপোজিট করুন</h3>
+                    <div class="form-group">
+                        <label for="deposit-amount">টাকার পরিমাণ</label>
+                        <input type="number" id="deposit-amount" placeholder="টাকার পরিমাণ লিখুন" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-id">ট্রানজেকশন আইডি</label>
+                        <input type="text" id="transaction-id" placeholder="বিকাশ/নগদ ট্রানজেকশন আইডি">
+                        <p class="info-text">টাকা পাঠানোর পর প্রাপ্ত ট্রানজেকশন আইডি এখানে লিখুন</p>
+                    </div>
+                    <button id="submit-deposit"><i class="fas fa-paper-plane"></i> ডিপোজিট সাবমিট করুন</button>
+                    
+                    <div id="deposit-notification" class="notification"></div>
+                </div>
+                
+                <div class="transaction-history">
+                    <h3><i class="fas fa-history"></i> ট্রানজেকশন ইতিহাস</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>তারিখ</th>
+                                <th>বিবরণ</th>
+                                <th>পরিমাণ</th>
+                                <th>স্ট্যাটাস</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-history-body">
+                            <!-- Transaction history will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Admin Section (Only visible to admin) -->
+                <div class="admin-section" id="admin-section" style="display: none;">
+                    <h3><i class="fas fa-user-cog"></i> এডমিন প্যানেল - ডিপোজিট অনুরোধগুলি</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ব্যবহারকারী</th>
+                                <th>পরিমাণ</th>
+                                <th>ট্রানজেকশন আইডি</th>
+                                <th>তারিখ</th>
+                                <th>কার্যক্রম</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-deposits-body">
+                            <!-- Pending deposits will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Initialize users in localStorage if not exists
+        function initializeUsers() {
+            if (!localStorage.getItem('bankUsers')) {
+                const users = {
+                    "user123": {
+                        password: "pass123",
+                        balance: 15000.50,
+                        transactions: [
+                            { date: "2023-05-15", description: "বিকাশ থেকে ডিপোজিট", amount: 10000, status: "সফল" },
+                            { date: "2023-05-18", description: "নগদ থেকে ডিপোজিট", amount: 5000, status: "সফল" },
+                            { date: "2023-05-20", description: "সেবা ফি", amount: -500, status: "সফল" }
+                        ]
+                    },
+                    "user456": {
+                        password: "pass456",
+                        balance: 8000.00,
+                        transactions: [
+                            { date: "2023-05-10", description: "বিকাশ থেকে ডিপোজিট", amount: 8000, status: "সফল" }
+                        ]
+                    },
+                    "admin": {
+                        password: "adminpass",
+                        isAdmin: true
+                    }
+                };
+                localStorage.setItem('bankUsers', JSON.stringify(users));
+            }
+            
+            // Initialize pending deposits if not exists
+            if (!localStorage.getItem('pendingDeposits')) {
+                localStorage.setItem('pendingDeposits', JSON.stringify([]));
+            }
+        }
+        
+        // Get users from localStorage
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('bankUsers'));
+        }
+        
+        // Save users to localStorage
+        function saveUsers(users) {
+            localStorage.setItem('bankUsers', JSON.stringify(users));
+        }
+        
+        // Get pending deposits from localStorage
+        function getPendingDeposits() {
+            return JSON.parse(localStorage.getItem('pendingDeposits'));
+        }
+        
+        // Save pending deposits to localStorage
+        function savePendingDeposits(deposits) {
+            localStorage.setItem('pendingDeposits', JSON.stringify(deposits));
+        }
+        
+        // DOM Elements
+        const authSection = document.getElementById('auth-section');
+        const dashboard = document.getElementById('dashboard');
+        const userInfo = document.getElementById('user-info');
+        const usernameDisplay = document.getElementById('username-display');
+        const balanceAmount = document.getElementById('balance-amount');
+        const transactionHistoryBody = document.getElementById('transaction-history-body');
+        const adminSection = document.getElementById('admin-section');
+        const pendingDepositsBody = document.getElementById('pending-deposits-body');
+        const loginNotification = document.getElementById('login-notification');
+        const depositNotification = document.getElementById('deposit-notification');
+        
+        // Current user
+        let currentUser = null;
+        
+        // Initialize the application
+        initializeUsers();
+        
+        // Login functionality
+        document.getElementById('login-btn').addEventListener('click', function() {
+            const userId = document.getElementById('user-id').value;
+            const password = document.getElementById('password').value;
+            
+            const users = getUsers();
+            
+            if (users[userId] && users[userId].password === password) {
+                currentUser = userId;
+                showNotification(loginNotification, 'লগইন সফল হয়েছে!', 'success');
+                
+                // Update UI
+                setTimeout(() => {
+                    authSection.style.display = 'none';
+                    dashboard.style.display = 'block';
+                    userInfo.style.display = 'block';
+                    usernameDisplay.textContent = userId;
+                    
+                    if (users[userId].isAdmin) {
+                        adminSection.style.display = 'block';
+                        loadPendingDeposits();
+                    } else {
+                        updateDashboard();
+                    }
+                }, 1000);
+            } else {
+                showNotification(loginNotification, 'ভুল আইডি বা পাসওয়ার্ড!', 'error');
+            }
+        });
+        
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            currentUser = null;
+            dashboard.style.display = 'none';
+            userInfo.style.display = 'none';
+            authSection.style.display = 'block';
+            document.getElementById('user-id').value = '';
+            document.getElementById('password').value = '';
+        });
+        
+        // Refresh button
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const users = getUsers();
+                if (users[currentUser].isAdmin) {
+                    loadPendingDeposits();
+                } else {
+                    updateDashboard();
+                }
+                showNotification(depositNotification, 'ডেটা রিফ্রেশ করা হয়েছে', 'success');
+            }
+        });
+        
+        // Clear data button
+        document.getElementById('clear-data-btn').addEventListener('click', function() {
+            if (confirm('আপনি কি নিশ্চিত যে আপনি সব ডেটা রিসেট করতে চান?')) {
+                localStorage.clear();
+                initializeUsers();
+                if (currentUser) {
+                    const users = getUsers();
+                    if (users[currentUser].isAdmin) {
+                        loadPendingDeposits();
+                    } else {
+                        updateDashboard();
+                    }
+                }
+                showNotification(depositNotification, 'সব ডেটা রিসেট করা হয়েছে', 'success');
+            }
+        });
+        
+        // Submit deposit functionality
+        document.getElementById('submit-deposit').addEventListener('click', function() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const transactionId = document.getElementById('transaction-id').value;
+            
+            if (isNaN(amount) || amount <= 0) {
+                showNotification(depositNotification, 'অবৈধ টাকার পরিমাণ!', 'error');
+                return;
+            }
+            
+            if (!transactionId) {
+                showNotification(depositNotification, 'ট্রানজেকশন আইডি প্রয়োজন!', 'error');
+                return;
+            }
+            
+            const pendingDeposits = getPendingDeposits();
+            
+            // Add to pending deposits
+            pendingDeposits.push({
+                userId: currentUser,
+                amount: amount,
+                transactionId: transactionId,
+                date: new Date().toLocaleDateString('bn-BD')
+            });
+            
+            savePendingDeposits(pendingDeposits);
+            
+            showNotification(depositNotification, 'ডিপোজিট অনুরোধ সাবমিট হয়েছে! এডমিনের Verification এর জন্য অপেক্ষা করুন।', 'success');
+            document.getElementById('deposit-amount').value = '';
+            document.getElementById('transaction-id').value = '';
+            
+            // If admin is logged in, refresh the pending deposits list
+            const users = getUsers();
+            if (users[currentUser] && users[currentUser].isAdmin) {
+                loadPendingDeposits();
+            }
+        });
+        
+        // Update dashboard with user data
+        function updateDashboard() {
+            if (!currentUser) return;
+            
+            const users = getUsers();
+            const user = users[currentUser];
+            
+            if (user.isAdmin) return;
+            
+            balanceAmount.textContent = `৳ ${user.balance.toLocaleString('bn-BD')}`;
+            
+            // Populate transaction history
+            transactionHistoryBody.innerHTML = '';
+            user.transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.description}</td>
+                    <td>৳ ${transaction.amount.toLocaleString('bn-BD')}</td>
+                    <td>${transaction.status}</td>
+                `;
+                transactionHistoryBody.appendChild(row);
+            });
+        }
+        
+        // Load pending deposits for admin
+        function loadPendingDeposits() {
+            if (!currentUser) return;
+            
+            const users = getUsers();
+            if (!users[currentUser].isAdmin) return;
+            
+            const pendingDeposits = getPendingDeposits();
+            pendingDepositsBody.innerHTML = '';
+            
+            if (pendingDeposits.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="text-align: center;">কোনোPending ডিপোজিট requests নেই</td>`;
+                pendingDepositsBody.appendChild(row);
+                return;
+            }
+            
+            pendingDeposits.forEach((deposit, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${deposit.userId}</td>
+                    <td>৳ ${deposit.amount.toLocaleString('bn-BD')}</td>
+                    <td>${deposit.transactionId}</td>
+                    <td>${deposit.date}</td>
+                    <td class="action-buttons">
+                        <button class="approve-btn" data-index="${index}"><i class="fas fa-check"></i> অনুমোদন করুন</button>
+                        <button class="reject-btn" data-index="${index}"><i class="fas fa-times"></i> প্রত্যাখ্যান করুন</button>
+                    </td>
+                `;
+                pendingDepositsBody.appendChild(row);
+            });
+            
+            // Add event listeners to approve and reject buttons
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    approveDeposit(index);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    rejectDeposit(index);
+                });
+            });
+        }
+        
+        // Approve deposit
+        function approveDeposit(index) {
+            const pendingDeposits = getPendingDeposits();
+            const deposit = pendingDeposits[index];
+            const users = getUsers();
+            
+            // Update user balance
+            if (users[deposit.userId]) {
+                users[deposit.userId].balance += deposit.amount;
+                
+                // Add transaction to user history
+                users[deposit.userId].transactions.push({
+                    date: new Date().toLocaleDateString('bn-BD'),
+                    description: "ডিপোজিট (অনুমোদিত)",
+                    amount: deposit.amount,
+                    status: "সফল"
+                });
+            }
+            
+            // Remove from pending deposits
+            pendingDeposits.splice(index, 1);
+            
+            savePendingDeposits(pendingDeposits);
+            saveUsers(users);
+            
+            // Reload pending deposits
+            loadPendingDeposits();
+            
+            showNotification(depositNotification, 'ডিপোজিট অনুমোদিত হয়েছে', 'success');
+        }
+        
+        // Reject deposit
+        function rejectDeposit(index) {
+            const pendingDeposits = getPendingDeposits();
+            const deposit = pendingDeposits[index];
+            const users = getUsers();
+            
+            // Add transaction to user history (if user exists)
+            if (users[deposit.userId]) {
+                users[deposit.userId].transactions.push({
+                    date: new Date().toLocaleDateString('bn-BD'),
+                    description: "ডিপোজিট (প্রত্যাখ্যাত)",
+                    amount: deposit.amount,
+                    status: "ব্যর্থ"
+                });
+            }
+            
+            // Remove from pending deposits
+            pendingDeposits.splice(index, 1);
+            
+            savePendingDeposits(pendingDeposits);
+            saveUsers(users);
+            
+            // Reload pending deposits
+            loadPendingDeposits();
+            
+            showNotification(depositNotification, 'ডিপোজিট প্রত্যাখ্যান হয়েছে', 'success');
+        }
+        
+        // Show notification
+        function showNotification(element, message, type) {
+            element.textContent = message;
+            element.className = `notification ${type}`;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
